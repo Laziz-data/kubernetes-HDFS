@@ -110,7 +110,7 @@ data:
   # ad-hoc operation as specified by a user.
   custom-run.sh: {{ .Values.customRunScript | quote }}
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ template "hdfs-k8s.namenode.fullname" . }}
@@ -121,6 +121,10 @@ metadata:
 spec:
   serviceName: {{ template "hdfs-k8s.namenode.fullname" . }}
   replicas: 2
+  selector:
+    matchLabels:
+      app: {{ template "hdfs-k8s.namenode.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       labels:
@@ -137,7 +141,7 @@ spec:
       # Disabling this will break data locality as namenode will see pod virtual IPs and fails to
       # equate them with cluster node physical IPs associated with data nodes.
       # We currently disable this only for CI on minikube.
-      hostNetwork: true
+      hostNetwork: true 
       hostPID: true
       dnsPolicy: ClusterFirstWithHostNet
       {{- else }}
